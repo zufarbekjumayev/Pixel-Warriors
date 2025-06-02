@@ -1,0 +1,1884 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Warriors</title>
+    <script src="https://yandex.ru/games/sdk/v2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+            -webkit-touch-callout: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+            -webkit-context-menu: none !important;
+            -moz-context-menu: none !important;
+            -ms-context-menu: none !important;
+            context-menu: none !important;
+        }
+
+        html, body {
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+            -webkit-touch-callout: none !important;
+            -webkit-context-menu: none !important;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
+            cursor: default;
+        }
+
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(30, 30, 60, 0.9));
+            color: white;
+            z-index: 100;
+            border-bottom: 2px solid #ffd700;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #ffd700, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .score {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .player-score {
+            text-align: center;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .player-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .vs-text {
+            color: #ffd700;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #4a5568, #2d3748);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .language-btn {
+            padding: 8px 12px;
+            font-size: 14px;
+            min-width: 50px;
+        }
+
+        .game-canvas {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #0f0f23, #1a1a2e, #16213e);
+        }
+
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+        }
+
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(15, 15, 35, 0.95));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            backdrop-filter: blur(10px);
+        }
+
+        .start-content {
+            text-align: center;
+            color: white;
+            max-width: 700px;
+            padding: 50px;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(26, 26, 46, 0.9));
+            border-radius: 25px;
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 30px rgba(255, 215, 0, 0.3); }
+            to { box-shadow: 0 0 60px rgba(255, 215, 0, 0.6); }
+        }
+
+        .game-title {
+            font-size: 56px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd700, #4ecdc4, #ff6b6b);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .game-description {
+            font-size: 20px;
+            margin-bottom: 25px;
+            color: #e2e8f0;
+        }
+
+        .game-features {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .start-btn {
+            padding: 18px 40px;
+            font-size: 22px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd700, #4ecdc4);
+            background-size: 300% 300%;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            margin-top: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(15, 15, 35, 0.9));
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-over-content {
+            text-align: center;
+            color: white;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(26, 26, 46, 0.9));
+            padding: 50px;
+            border-radius: 25px;
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.4);
+        }
+
+        .winner-text {
+            font-size: 42px;
+            margin-bottom: 25px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #ffd700, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .controls-info {
+            position: absolute;
+            top: 80px;
+            left: 25px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(30, 30, 60, 0.9));
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 14px;
+            display: none;
+            z-index: 150;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .player-controls {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .player-controls h4 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .health-bar {
+            position: absolute;
+            width: 250px;
+            height: 25px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 3px solid white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .health-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .player1-health {
+            top: 25px;
+            left: 25px;
+        }
+
+        .player1-health .health-fill {
+            background: linear-gradient(90deg, #ff6b6b, #ff8e8e, #ffb3b3);
+        }
+
+        .player2-health {
+            top: 25px;
+            right: 25px;
+        }
+
+        .player2-health .health-fill {
+            background: linear-gradient(90deg, #4ecdc4, #6ee7db, #8ef5f0);
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd700, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 215, 0, 0.3);
+            border-top: 4px solid #ffd700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 60px;
+            right: 25px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 12px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .status-online {
+            color: #4ecdc4;
+        }
+
+        .status-offline {
+            color: #ff6b6b;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 15px;
+            }
+            
+            .title {
+                font-size: 20px;
+            }
+            
+            .score {
+                gap: 15px;
+            }
+            
+            .start-content {
+                padding: 30px;
+                margin: 20px;
+            }
+            
+            .game-title {
+                font-size: 36px;
+            }
+            
+            .controls-info {
+                left: 10px;
+                right: 10px;
+                top: 70px;
+            }
+            
+            .controls-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+
+        /* Qo'shimcha himoya */
+        ::selection {
+            background: transparent;
+        }
+
+        ::-moz-selection {
+            background: transparent;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">
+        <div class="loading-text" data-translate="loading">Pixel Warriors yuklanmoqda...</div>
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="game-container" id="gameContainer" style="display: none;">
+        <div class="header">
+            <div class="title">🎮 Pixel Warriors</div>
+            <div class="score">
+                <div class="player-score">
+                    <div class="player-name" style="color: #ff6b6b;">🔴 <span data-translate="player1">O'yinchi 1</span></div>
+                    <div class="score-value" id="score1">0</div>
+                </div>
+                <div class="vs-text">VS</div>
+                <div class="player-score">
+                    <div class="player-name" style="color: #4ecdc4;">🔵 <span data-translate="player2">O'yinchi 2</span></div>
+                    <div class="score-value" id="score2">0</div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn language-btn" onclick="toggleLanguage()" title="Language / Til" id="languageBtn">🌐 UZ</button>
+                <button class="btn" onclick="toggleControls()" data-translate-title="controls" title="Boshqaruv">ℹ️</button>
+                <button class="btn" onclick="toggleSound()" data-translate-title="sound" title="Ovoz" id="soundBtn">🔊</button>
+                <button class="btn" onclick="resetGame()" data-translate-title="reset" title="Qayta boshlash">🔄</button>
+            </div>
+        </div>
+
+        <div class="status-indicator" id="statusIndicator">
+            <span id="connectionStatus" class="status-offline">Offline</span>
+        </div>
+
+        <div class="controls-info" id="controlsInfo">
+            <div class="controls-grid">
+                <div class="player-controls">
+                    <h4 style="color: #ff6b6b;">🔴 <span data-translate="player1">O'yinchi 1</span></h4>
+                    <div><span data-translate="move">A/D: Harakat qilish</span></div>
+                    <div><span data-translate="jump">W: Sakrash</span></div>
+                    <div><span data-translate="attack">S: Hujum qilish</span></div>
+                    <div><span data-translate="weapon">Q: Qurol almashtirish</span></div>
+                </div>
+                <div class="player-controls">
+                    <h4 style="color: #4ecdc4;">🔵 <span data-translate="player2">O'yinchi 2</span></h4>
+                    <div><span data-translate="move2">←/→: Harakat qilish</span></div>
+                    <div><span data-translate="jump2">↑: Sakrash</span></div>
+                    <div><span data-translate="attack2">↓: Hujum qilish</span></div>
+                    <div><span data-translate="weapon2">/: Qurol almashtirish</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-canvas">
+            <canvas id="gameCanvas"></canvas>
+            
+            <div class="health-bar player1-health">
+                <div class="health-fill" id="health1" style="width: 100%;"></div>
+            </div>
+            
+            <div class="health-bar player2-health">
+                <div class="health-fill" id="health2" style="width: 100%;"></div>
+            </div>
+
+            <div class="start-screen" id="startScreen">
+                <div class="start-content">
+                    <h1 class="game-title">Pixel Warriors</h1>
+                    <p class="game-description" data-translate="description">⚔️ Eng kuchli jangchi bo'ling! ⚔️</p>
+                    <div class="game-features">
+                        <p><strong data-translate="weapons">🔫 Qurollar:</strong> <span data-translate="weaponsDesc">Pistol (cheksiz) • Raketa (40 ta)</span></p>
+                        <p><strong data-translate="health">💪 Jon:</strong> <span data-translate="healthDesc">2400 HP har bir o'yinchi uchun</span></p>
+                        <p><strong data-translate="platforms">🏗️ Platformalar:</strong> <span data-translate="platformsDesc">6 ta turli darajadagi platform</span></p>
+                        <p><strong data-translate="goal">🎯 Maqsad:</strong> <span data-translate="goalDesc">Raqibingizni mag'lub eting!</span></p>
+                    </div>
+                    <button class="start-btn" onclick="startGame()" data-translate="startGame">🎮 O'YINNI BOSHLASH!</button>
+                </div>
+            </div>
+
+            <div class="game-over" id="gameOver">
+                <div class="game-over-content">
+                    <h2 class="winner-text" id="winnerText"></h2>
+                    <p style="font-size: 20px; margin-bottom: 30px; color: #e2e8f0;" data-translate="victory">Ajoyib g'alaba! 🎉</p>
+                    <button class="start-btn" onclick="nextRound()" data-translate="nextRound">KEYINGI RAUND</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Til tizimi
+        let currentLanguage = 'uz';
+        
+        const translations = {
+            uz: {
+                loading: "Pixel Warriors yuklanmoqda...",
+                player1: "O'yinchi 1",
+                player2: "O'yinchi 2",
+                controls: "Boshqaruv",
+                sound: "Ovoz",
+                reset: "Qayta boshlash",
+                move: "A/D: Harakat qilish",
+                jump: "W: Sakrash",
+                attack: "S: Hujum qilish",
+                weapon: "Q: Qurol almashtirish",
+                move2: "←/→: Harakat qilish",
+                jump2: "↑: Sakrash",
+                attack2: "↓: Hujum qilish",
+                weapon2: "/: Qurol almashtirish",
+                description: "⚔️ Eng kuchli jangchi bo'ling! ⚔️",
+                weapons: "🔫 Qurollar:",
+                weaponsDesc: "Pistol (cheksiz) • Raketa (40 ta)",
+                health: "💪 Jon:",
+                healthDesc: "2400 HP har bir o'yinchi uchun",
+                platforms: "🏗️ Platformalar:",
+                platformsDesc: "6 ta turli darajadagi platform",
+                goal: "🎯 Maqsad:",
+                goalDesc: "Raqibingizni mag'lub eting!",
+                startGame: "🎮 O'YINNI BOSHLASH!",
+                victory: "Ajoyib g'alaba! 🎉",
+                nextRound: "KEYINGI RAUND",
+                winner1: "🔴 1-O'YINCHI G'OLIB!",
+                winner2: "🔵 2-O'YINCHI G'OLIB!",
+                charging: "ZARYADLANMOQDA..."
+            },
+            en: {
+                loading: "Loading Pixel Warriors...",
+                player1: "Player 1",
+                player2: "Player 2",
+                controls: "Controls",
+                sound: "Sound",
+                reset: "Reset",
+                move: "A/D: Move",
+                jump: "W: Jump",
+                attack: "S: Attack",
+                weapon: "Q: Switch weapon",
+                move2: "←/→: Move",
+                jump2: "↑: Jump",
+                attack2: "↓: Attack",
+                weapon2: "/: Switch weapon",
+                description: "⚔️ Become the strongest warrior! ⚔️",
+                weapons: "🔫 Weapons:",
+                weaponsDesc: "Pistol (unlimited) • Rocket (40 pcs)",
+                health: "💪 Health:",
+                healthDesc: "2400 HP for each player",
+                platforms: "🏗️ Platforms:",
+                platformsDesc: "6 different level platforms",
+                goal: "🎯 Goal:",
+                goalDesc: "Defeat your opponent!",
+                startGame: "🎮 START GAME!",
+                victory: "Amazing victory! 🎉",
+                nextRound: "NEXT ROUND",
+                winner1: "🔴 PLAYER 1 WINS!",
+                winner2: "🔵 PLAYER 2 WINS!",
+                charging: "CHARGING..."
+            }
+        };
+
+        // Tilni o'zgartirish funksiyasi
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'uz' ? 'en' : 'uz';
+            updateLanguage();
+            saveLanguagePreference();
+        }
+
+        // Tilni yangilash
+        function updateLanguage() {
+            const elements = document.querySelectorAll('[data-translate]');
+            elements.forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[currentLanguage][key]) {
+                    element.textContent = translations[currentLanguage][key];
+                }
+            });
+
+            // Title attributelarini yangilash
+            const titleElements = document.querySelectorAll('[data-translate-title]');
+            titleElements.forEach(element => {
+                const key = element.getAttribute('data-translate-title');
+                if (translations[currentLanguage][key]) {
+                    element.setAttribute('title', translations[currentLanguage][key]);
+                }
+            });
+
+            // Til tugmasini yangilash
+            const languageBtn = document.getElementById('languageBtn');
+            languageBtn.textContent = currentLanguage === 'uz' ? '🌐 UZ' : '🌐 EN';
+
+            // HTML lang attributini yangilash
+            document.documentElement.lang = currentLanguage;
+
+            console.log('Til o\'zgartirildi:', currentLanguage);
+        }
+
+        // Til sozlamasini saqlash
+        function saveLanguagePreference() {
+            try {
+                localStorage.setItem('pixelWarriorsLanguage', currentLanguage);
+                console.log('Til sozlamasi saqlandi:', currentLanguage);
+            } catch (error) {
+                console.error('Til sozlamasini saqlashda xatolik:', error);
+            }
+        }
+
+        // Til sozlamasini yuklash
+        function loadLanguagePreference() {
+            try {
+                const savedLanguage = localStorage.getItem('pixelWarriorsLanguage');
+                if (savedLanguage && (savedLanguage === 'uz' || savedLanguage === 'en')) {
+                    currentLanguage = savedLanguage;
+                    console.log('Til sozlamasi yuklandi:', currentLanguage);
+                } else {
+                    currentLanguage = 'uz'; // Default til
+                }
+                updateLanguage();
+            } catch (error) {
+                console.error('Til sozlamasini yuklashda xatolik:', error);
+                currentLanguage = 'uz';
+                updateLanguage();
+            }
+        }
+
+        // Global o'zgaruvchilar
+        let ysdk = null;
+        let player = null;
+        let gameReady = false;
+        let leaderboard = null;
+        let sdkInitialized = false;
+
+        // O'yin o'zgaruvchilari
+        const GAME_WIDTH = 1900;
+        const GAME_HEIGHT = 812;
+        const PLAYER_SIZE = 45;
+        const GRAVITY = 0.6;
+        const JUMP_FORCE = -18;
+        const MOVE_SPEED = 6;
+        const MAX_CHARGE = 100;
+        const CHARGE_RATE = 4;
+        const MAX_ROCKETS = 40;
+        const MAX_HEALTH = 2400;
+
+        let canvas, ctx;
+        let gameStarted = false;
+        let gameOver = false;
+        let winner = null;
+        let soundEnabled = true;
+        let showControls = false;
+        let keys = new Set();
+        let gameLoop = null;
+        let lastSaveTime = 0;
+        const SAVE_INTERVAL = 3000;
+
+        // O'yinchilar
+        let players = [
+            {
+                id: 1,
+                x: 150,
+                y: 700,
+                vx: 0,
+                vy: 0,
+                health: MAX_HEALTH,
+                maxHealth: MAX_HEALTH,
+                isCharging: false,
+                chargeTime: 0,
+                facingRight: true,
+                attackCooldown: 0,
+                currentWeapon: "pistol",
+                rocketAmmo: MAX_ROCKETS,
+                onGround: false,
+                color: "#ff6b6b",
+                secondaryColor: "#ff8e8e"
+            },
+            {
+                id: 2,
+                x: 1700,
+                y: 700,
+                vx: 0,
+                vy: 0,
+                health: MAX_HEALTH,
+                maxHealth: MAX_HEALTH,
+                isCharging: false,
+                chargeTime: 0,
+                facingRight: false,
+                attackCooldown: 0,
+                currentWeapon: "pistol",
+                rocketAmmo: MAX_ROCKETS,
+                onGround: false,
+                color: "#4ecdc4",
+                secondaryColor: "#6ee7db"
+            }
+        ];
+
+        let projectiles = [];
+        let particles = [];
+        let score = { player1: 0, player2: 0 };
+
+        // Platformalar
+        const platforms = [
+            { x: 0, y: 750, width: GAME_WIDTH, height: 62 },
+            { x: 200, y: 600, width: 400, height: 20 },
+            { x: 700, y: 500, width: 400, height: 20 },
+            { x: 1300, y: 400, width: 400, height: 20 },
+            { x: 900, y: 300, width: 400, height: 20 },
+            { x: 500, y: 200, width: 400, height: 20 }
+        ];
+
+        // Kontekst menyusi va matn tanlanishini to'liq oldini olish
+        function preventContextMenu() {
+            const events = [
+                'contextmenu', 'selectstart', 'dragstart', 'drag', 'dragend',
+                'copy', 'cut', 'paste', 'mousedown', 'mouseup', 'keydown'
+            ];
+
+            events.forEach(eventType => {
+                document.addEventListener(eventType, function(e) {
+                    if (eventType === 'contextmenu') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        return false;
+                    }
+                    
+                    if (eventType === 'selectstart' || eventType === 'dragstart') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        return false;
+                    }
+                    
+                    if (eventType === 'mousedown' && e.button === 2) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        return false;
+                    }
+                    
+                    if (eventType === 'keydown') {
+                        if (e.key === 'F12' || 
+                            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C' || e.key === 'J')) ||
+                            (e.ctrlKey && e.key === 'u') ||
+                            (e.ctrlKey && e.key === 'a') ||
+                            (e.ctrlKey && e.key === 'c') ||
+                            (e.ctrlKey && e.key === 'v') ||
+                            (e.ctrlKey && e.key === 'x')) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                            return false;
+                        }
+                    }
+                }, true);
+            });
+
+            document.addEventListener('touchstart', function(e) {
+                if (e.touches.length > 1) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, { passive: false, capture: true });
+
+            document.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }, { passive: false, capture: true });
+
+            const style = document.createElement('style');
+            style.textContent = `
+                * {
+                    -webkit-user-select: none !important;
+                    -moz-user-select: none !important;
+                    -ms-user-select: none !important;
+                    user-select: none !important;
+                    -webkit-touch-callout: none !important;
+                    -webkit-context-menu: none !important;
+                }
+                ::selection { background: transparent !important; }
+                ::-moz-selection { background: transparent !important; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Yandex Games SDK ni to'g'ri ishga tushirish
+        async function initYandexSDK() {
+            try {
+                console.log('Yandex SDK yuklanmoqda...');
+                
+                if (typeof YaGames === 'undefined') {
+                    throw new Error('YaGames SDK yuklanmagan');
+                }
+
+                ysdk = await YaGames.init({
+                    adv: {
+                        onAdvClose: () => console.log('Reklama yopildi'),
+                        onAdvError: (error) => console.log('Reklama xatolik:', error)
+                    }
+                });
+                
+                console.log('Yandex SDK muvaffaqiyatli yuklandi');
+                sdkInitialized = true;
+                updateConnectionStatus(true);
+
+                try {
+                    player = await ysdk.getPlayer({ scopes: false });
+                    console.log('O\'yinchi ma\'lumotlari olindi');
+                } catch (err) {
+                    console.log('O\'yinchi ma\'lumotlarini olishda xatolik:', err);
+                }
+
+                try {
+                    leaderboard = ysdk.getLeaderboards();
+                    console.log('Leaderboard ishga tushirildi');
+                } catch (err) {
+                    console.log('Leaderboard xatolik:', err);
+                }
+
+                try {
+                    if (ysdk.features && ysdk.features.GameplayAPI) {
+                        await ysdk.features.GameplayAPI.ready();
+                        gameReady = true;
+                        console.log('Game Ready API muvaffaqiyatli chaqirildi');
+                    } else {
+                        console.warn('GameplayAPI mavjud emas');
+                    }
+                } catch (err) {
+                    console.error('Game Ready API xatolik:', err);
+                }
+
+            } catch (error) {
+                console.error('Yandex SDK xatolik:', error);
+                updateConnectionStatus(false);
+                sdkInitialized = false;
+            }
+
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('gameContainer').style.display = 'flex';
+                initGame();
+            }, 1500);
+        }
+
+        // Ulanish holatini yangilash
+        function updateConnectionStatus(isOnline) {
+            const statusElement = document.getElementById('connectionStatus');
+            if (isOnline && sdkInitialized) {
+                statusElement.textContent = 'Yandex Games';
+                statusElement.className = 'status-online';
+            } else {
+                statusElement.textContent = 'Offline';
+                statusElement.className = 'status-offline';
+            }
+        }
+
+        // Ma'lumotlarni saqlash (yaxshilangan)
+        async function saveGameData() {
+            const currentTime = Date.now();
+            
+            if (currentTime - lastSaveTime < SAVE_INTERVAL) {
+                return false;
+            }
+            
+            lastSaveTime = currentTime;
+
+            const gameData = {
+                score: score,
+                timestamp: currentTime,
+                version: "2.1",
+                totalGames: score.player1 + score.player2,
+                lastPlayed: currentTime,
+                gameState: {
+                    soundEnabled: soundEnabled,
+                    totalRounds: score.player1 + score.player2,
+                    language: currentLanguage
+                }
+            };
+
+            let saveSuccess = false;
+
+            // Yandex Cloud Storage
+            if (sdkInitialized && player && player.setData) {
+                try {
+                    await player.setData(gameData, true);
+                    console.log('Ma\'lumotlar Yandex Cloud ga saqlandi');
+                    saveSuccess = true;
+                } catch (error) {
+                    console.error('Yandex Cloud saqlash xatolik:', error);
+                }
+            }
+
+            // Leaderboard
+            if (sdkInitialized && leaderboard && (score.player1 > 0 || score.player2 > 0)) {
+                try {
+                    const totalScore = Math.max(score.player1, score.player2) * 100 + 
+                                     Math.min(score.player1, score.player2) * 10;
+                    await leaderboard.setLeaderboardScore('main', totalScore);
+                    console.log('Leaderboard yangilandi:', totalScore);
+                } catch (error) {
+                    console.error('Leaderboard xatolik:', error);
+                }
+            }
+
+            // LocalStorage (fallback)
+            try {
+                localStorage.setItem('pixelWarriorsGameData', JSON.stringify(gameData));
+                console.log('Ma\'lumotlar localStorage ga saqlandi');
+                saveSuccess = true;
+            } catch (error) {
+                console.error('localStorage xatolik:', error);
+            }
+
+            return saveSuccess;
+        }
+
+        // Ma'lumotlarni yuklash (yaxshilangan)
+        async function loadGameData() {
+            try {
+                let gameData = null;
+                let loadSource = 'none';
+
+                console.log('Ma\'lumotlarni yuklash boshlandi...');
+
+                // Yandex Cloud dan yuklash
+                if (sdkInitialized && player && player.getData) {
+                    try {
+                        gameData = await player.getData();
+                        console.log('Yandex Cloud dan olingan ma\'lumotlar:', gameData);
+                        if (gameData && gameData.score) {
+                            loadSource = 'yandex';
+                            console.log('Ma\'lumotlar Yandex Cloud dan yuklandi');
+                        }
+                    } catch (error) {
+                        console.error('Yandex Cloud yuklash xatolik:', error);
+                    }
+                }
+
+                // LocalStorage dan yuklash
+                if (!gameData) {
+                    try {
+                        const localData = localStorage.getItem('pixelWarriorsGameData');
+                        console.log('LocalStorage dan olingan ma\'lumotlar:', localData);
+                        if (localData) {
+                            const parsedData = JSON.parse(localData);
+                            console.log('Parse qilingan ma\'lumotlar:', parsedData);
+                            if (parsedData && parsedData.score) {
+                                gameData = parsedData;
+                                loadSource = 'local';
+                                console.log('Ma\'lumotlar localStorage dan yuklandi');
+                            }
+                        }
+                    } catch (error) {
+                        console.error('localStorage yuklash xatolik:', error);
+                    }
+                }
+
+                // Ma'lumotlarni qo'llash
+                if (gameData && gameData.score) {
+                    score.player1 = parseInt(gameData.score.player1) || 0;
+                    score.player2 = parseInt(gameData.score.player2) || 0;
+                    
+                    console.log('Yuklangan score:', score);
+                    
+                    if (gameData.gameState) {
+                        if (gameData.gameState.soundEnabled !== undefined) {
+                            soundEnabled = gameData.gameState.soundEnabled;
+                            updateSoundButton();
+                        }
+                        
+                        // Til sozlamasini yuklash
+                        if (gameData.gameState.language && (gameData.gameState.language === 'uz' || gameData.gameState.language === 'en')) {
+                            currentLanguage = gameData.gameState.language;
+                            updateLanguage();
+                        }
+                    }
+                    
+                    updateScoreDisplay();
+                    
+                    console.log(`Ma\'lumotlar ${loadSource} dan muvaffaqiyatli yuklandi. Score: ${score.player1} - ${score.player2}, Til: ${currentLanguage}`);
+                } else {
+                    console.log('Saqlangan ma\'lumotlar topilmadi yoki noto\'g\'ri format');
+                    score = { player1: 0, player2: 0 };
+                    updateScoreDisplay();
+                }
+            } catch (error) {
+                console.error('Ma\'lumotlarni yuklashda umumiy xatolik:', error);
+                score = { player1: 0, player2: 0 };
+                updateScoreDisplay();
+            }
+        }
+
+        // O'yinni ishga tushirish (yangilangan)
+        function initGame() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            
+            canvas.width = GAME_WIDTH;
+            canvas.height = GAME_HEIGHT;
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+
+            preventContextMenu();
+            setupKeyboardEvents();
+            
+            // Til sozlamasini yuklash
+            loadLanguagePreference();
+            
+            // Ma'lumotlarni yuklash va UI ni yangilash
+            loadGameData().then(() => {
+                updateScoreDisplay();
+                updateSoundButton();
+                console.log('O\'yin muvaffaqiyatli ishga tushirildi. Joriy score:', score, 'Til:', currentLanguage);
+            }).catch(error => {
+                console.error('Ma\'lumotlarni yuklashda xatolik:', error);
+                updateScoreDisplay();
+                updateSoundButton();
+            });
+        }
+
+        // Score ni yangilash (kuchaytirilgan)
+        function updateScoreDisplay() {
+            try {
+                const score1Element = document.getElementById('score1');
+                const score2Element = document.getElementById('score2');
+                
+                if (score1Element && score2Element) {
+                    score1Element.textContent = score.player1 || 0;
+                    score2Element.textContent = score.player2 || 0;
+                    console.log('Score UI yangilandi:', score.player1, '-', score.player2);
+                } else {
+                    console.error('Score elementlari topilmadi');
+                }
+            } catch (error) {
+                console.error('Score yangilashda xatolik:', error);
+            }
+        }
+
+        // Ovoz tugmasini yangilash
+        function updateSoundButton() {
+            const btn = document.getElementById('soundBtn');
+            btn.textContent = soundEnabled ? '🔊' : '🔇';
+        }
+
+        // O'yinni boshlash
+        async function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            gameStarted = true;
+            gameOver = false;
+            resetPlayers();
+            
+            // Game Ready API - start
+            if (sdkInitialized && ysdk && ysdk.features && ysdk.features.GameplayAPI && gameReady) {
+                try {
+                    await ysdk.features.GameplayAPI.start();
+                    console.log('Gameplay started');
+                } catch (error) {
+                    console.log('Gameplay start error:', error);
+                }
+            }
+            
+            gameLoop = setInterval(() => {
+                updateGame();
+                drawGame();
+            }, 1000 / 60);
+        }
+
+        // O'yinchilarni qayta o'rnatish
+        function resetPlayers() {
+            players[0] = {
+                id: 1,
+                x: 150,
+                y: 700,
+                vx: 0,
+                vy: 0,
+                health: MAX_HEALTH,
+                maxHealth: MAX_HEALTH,
+                isCharging: false,
+                chargeTime: 0,
+                facingRight: true,
+                attackCooldown: 0,
+                currentWeapon: "pistol",
+                rocketAmmo: MAX_ROCKETS,
+                onGround: false,
+                color: "#ff6b6b",
+                secondaryColor: "#ff8e8e"
+            };
+
+            players[1] = {
+                id: 2,
+                x: 1700,
+                y: 700,
+                vx: 0,
+                vy: 0,
+                health: MAX_HEALTH,
+                maxHealth: MAX_HEALTH,
+                isCharging: false,
+                chargeTime: 0,
+                facingRight: false,
+                attackCooldown: 0,
+                currentWeapon: "pistol",
+                rocketAmmo: MAX_ROCKETS,
+                onGround: false,
+                color: "#4ecdc4",
+                secondaryColor: "#6ee7db"
+            };
+
+            projectiles = [];
+            particles = [];
+            updateHealthBars();
+        }
+
+        // O'yin tugashini ko'rsatish
+        async function showGameOver() {
+            const winnerKey = winner === 1 ? 'winner1' : 'winner2';
+            document.getElementById('winnerText').textContent = translations[currentLanguage][winnerKey];
+            document.getElementById('gameOver').style.display = 'flex';
+            
+            if (gameLoop) {
+                clearInterval(gameLoop);
+                gameLoop = null;
+            }
+
+            // Game Ready API - stop
+            if (sdkInitialized && ysdk && ysdk.features && ysdk.features.GameplayAPI && gameReady) {
+                try {
+                    await ysdk.features.GameplayAPI.stop();
+                    console.log('Gameplay stopped');
+                } catch (error) {
+                    console.log('Gameplay stop error:', error);
+                }
+            }
+        }
+
+        // Keyingi raund
+        function nextRound() {
+            document.getElementById('gameOver').style.display = 'none';
+            gameOver = false;
+            winner = null;
+            resetPlayers();
+            startGame();
+        }
+
+        // O'yinni qayta boshlash
+        async function resetGame() {
+            if (gameLoop) {
+                clearInterval(gameLoop);
+                gameLoop = null;
+            }
+            
+            // Game Ready API - stop
+            if (sdkInitialized && ysdk && ysdk.features && ysdk.features.GameplayAPI && gameReady) {
+                try {
+                    await ysdk.features.GameplayAPI.stop();
+                    console.log('Gameplay stopped for reset');
+                } catch (error) {
+                    console.log('Gameplay stop error:', error);
+                }
+            }
+            
+            score = { player1: 0, player2: 0 };
+            updateScoreDisplay();
+            await saveGameData();
+            
+            gameStarted = false;
+            gameOver = false;
+            winner = null;
+            
+            document.getElementById('startScreen').style.display = 'flex';
+            document.getElementById('gameOver').style.display = 'none';
+            
+            resetPlayers();
+        }
+
+        // Boshqaruv ma'lumotlarini ko'rsatish/yashirish
+        function toggleControls() {
+            const controlsInfo = document.getElementById('controlsInfo');
+            showControls = !showControls;
+            controlsInfo.style.display = showControls ? 'block' : 'none';
+        }
+
+        // Ovozni yoqish/o'chirish
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            updateSoundButton();
+            saveGameData();
+        }
+
+        // Klaviatura hodisalari
+        function setupKeyboardEvents() {
+            const gameKeys = ['a', 'd', 'w', 's', 'q', 'arrowleft', 'arrowright', 'arrowup', 'arrowdown', '/'];
+            
+            document.addEventListener('keydown', function(e) {
+                const key = e.key.toLowerCase();
+                if (gameKeys.includes(key) && gameStarted && !gameOver) {
+                    keys.add(key);
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, true);
+
+            document.addEventListener('keyup', function(e) {
+                const key = e.key.toLowerCase();
+                if (gameKeys.includes(key)) {
+                    keys.delete(key);
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, true);
+        }
+
+        // Ovoz effektlari
+        function playSound(frequency, duration, type = 'hit') {
+            if (!soundEnabled) return;
+
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                
+                switch (type) {
+                    case 'rocket':
+                        oscillator.type = 'sawtooth';
+                        break;
+                    case 'hit':
+                        oscillator.type = 'square';
+                        break;
+                    case 'switch':
+                        oscillator.type = 'triangle';
+                        break;
+                    case 'jump':
+                        oscillator.type = 'sine';
+                        break;
+                    case 'victory':
+                        oscillator.type = 'triangle';
+                        break;
+                    default:
+                        oscillator.type = 'sine';
+                }
+
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (error) {
+                console.log('Audio xatolik:', error);
+            }
+        }
+
+        // Zarralar yaratish
+        function createParticles(x, y, count, color, size, speed) {
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * speed;
+
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * velocity,
+                    vy: Math.sin(angle) * velocity - 1,
+                    size: Math.random() * size + 1,
+                    color: color,
+                    life: 100,
+                    maxLife: 100,
+                    gravity: 0.05
+                });
+            }
+        }
+
+        // Platform to'qnashuvini tekshirish
+        function checkPlatformCollision(x, y, width, height) {
+            for (const platform of platforms) {
+                if (x < platform.x + platform.width &&
+                    x + width > platform.x &&
+                    y < platform.y + platform.height &&
+                    y + height > platform.y) {
+                    return platform;
+                }
+            }
+            return null;
+        }
+
+        // Proyektil otish
+        function launchProjectile(player) {
+            const isRocket = player.currentWeapon === "rocket";
+            const power = isRocket ? player.chargeTime / MAX_CHARGE : 0;
+            const speed = isRocket ? 8 + power * 10 : 15;
+
+            const vx = player.facingRight ? speed : -speed;
+            const vy = isRocket ? -3 - power * 8 : 0;
+
+            const projectileX = player.facingRight ? player.x + PLAYER_SIZE : player.x;
+            const projectileY = player.y + PLAYER_SIZE / 2;
+
+            projectiles.push({
+                id: Date.now() + Math.random(),
+                x: projectileX,
+                y: projectileY,
+                vx: vx,
+                vy: vy,
+                owner: player.id,
+                type: player.currentWeapon,
+                size: isRocket ? 10 : 5,
+                color: isRocket ? "#ff4500" : "#ffd700",
+                power: power,
+                trail: []
+            });
+        }
+
+        // O'yin tsikli
+        function updateGame() {
+            if (!gameStarted || gameOver) return;
+
+            // Zarralarni yangilash
+            particles = particles.map(particle => ({
+                ...particle,
+                x: particle.x + particle.vx,
+                y: particle.y + particle.vy,
+                vy: particle.vy + particle.gravity,
+                life: particle.life - 2
+            })).filter(particle => particle.life > 0);
+
+            // O'yinchilarni yangilash
+            players.forEach(player => {
+                // Boshqaruv
+                if (player.id === 1) {
+                    // 1-o'yinchi
+                    if (keys.has('a')) {
+                        player.vx = -MOVE_SPEED;
+                        player.facingRight = false;
+                    } else if (keys.has('d')) {
+                        player.vx = MOVE_SPEED;
+                        player.facingRight = true;
+                    } else {
+                        player.vx *= 0.8;
+                    }
+
+                    if (keys.has('w') && player.onGround) {
+                        player.vy = JUMP_FORCE;
+                        player.onGround = false;
+                        playSound(440, 0.1, 'jump');
+                    }
+
+                    if (keys.has('q') && !player.isCharging) {
+                        player.currentWeapon = player.currentWeapon === "pistol" ? "rocket" : "pistol";
+                        playSound(550, 0.1, 'switch');
+                    }
+
+                    if (keys.has('s')) {
+                        if (!player.isCharging && player.attackCooldown <= 0) {
+                            if (player.currentWeapon === "pistol") {
+                                launchProjectile(player);
+                                player.attackCooldown = 12;
+                                playSound(660, 0.1, 'hit');
+                                createParticles(player.facingRight ? player.x + PLAYER_SIZE : player.x, 
+                                              player.y + PLAYER_SIZE / 2, 5, "#ffd700", 3, 2);
+                            } else if (player.rocketAmmo > 0) {
+                                player.isCharging = true;
+                                playSound(220, 0.1, 'charge');
+                            }
+                        }
+                        if (player.isCharging && player.currentWeapon === "rocket") {
+                            player.chargeTime = Math.min(MAX_CHARGE, player.chargeTime + CHARGE_RATE);
+                        }
+                    } else if (player.isCharging) {
+                        if (player.chargeTime > 10 && player.rocketAmmo > 0) {
+                            launchProjectile(player);
+                            player.rocketAmmo--;
+                            player.attackCooldown = 35;
+                            playSound(330, 0.3, 'rocket');
+                            createParticles(player.facingRight ? player.x + PLAYER_SIZE : player.x,
+                                          player.y + PLAYER_SIZE / 2, 20, "#ff8c00", 5, 4);
+                        }
+                        player.isCharging = false;
+                        player.chargeTime = 0;
+                    }
+                } else {
+                    // 2-o'yinchi
+                    if (keys.has('arrowleft')) {
+                        player.vx = -MOVE_SPEED;
+                        player.facingRight = false;
+                    } else if (keys.has('arrowright')) {
+                        player.vx = MOVE_SPEED;
+                        player.facingRight = true;
+                    } else {
+                        player.vx *= 0.8;
+                    }
+
+                    if (keys.has('arrowup') && player.onGround) {
+                        player.vy = JUMP_FORCE;
+                        player.onGround = false;
+                        playSound(440, 0.1, 'jump');
+                    }
+
+                    if (keys.has('/') && !player.isCharging) {
+                        player.currentWeapon = player.currentWeapon === "pistol" ? "rocket" : "pistol";
+                        playSound(550, 0.1, 'switch');
+                    }
+
+                    if (keys.has('arrowdown')) {
+                        if (!player.isCharging && player.attackCooldown <= 0) {
+                            if (player.currentWeapon === "pistol") {
+                                launchProjectile(player);
+                                player.attackCooldown = 12;
+                                playSound(660, 0.1, 'hit');
+                                createParticles(player.facingRight ? player.x + PLAYER_SIZE : player.x,
+                                              player.y + PLAYER_SIZE / 2, 5, "#ffd700", 3, 2);
+                            } else if (player.rocketAmmo > 0) {
+                                player.isCharging = true;
+                                playSound(220, 0.1, 'charge');
+                            }
+                        }
+                        if (player.isCharging && player.currentWeapon === "rocket") {
+                            player.chargeTime = Math.min(MAX_CHARGE, player.chargeTime + CHARGE_RATE);
+                        }
+                    } else if (player.isCharging) {
+                        if (player.chargeTime > 10 && player.rocketAmmo > 0) {
+                            launchProjectile(player);
+                            player.rocketAmmo--;
+                            player.attackCooldown = 35;
+                            playSound(330, 0.3, 'rocket');
+                            createParticles(player.facingRight ? player.x + PLAYER_SIZE : player.x,
+                                          player.y + PLAYER_SIZE / 2, 20, "#ff8c00", 5, 4);
+                        }
+                        player.isCharging = false;
+                        player.chargeTime = 0;
+                    }
+                }
+
+                // Fizika
+                player.x += player.vx;
+                player.vy += GRAVITY;
+
+                // Platform to'qnashuvlari
+                player.onGround = false;
+                const collision = checkPlatformCollision(player.x, player.y + player.vy, PLAYER_SIZE, PLAYER_SIZE);
+
+                if (collision && player.vy > 0) {
+                    player.y = collision.y - PLAYER_SIZE;
+                    player.vy = 0;
+                    player.onGround = true;
+                } else {
+                    player.y += player.vy;
+                }
+
+                // Chegaralar
+                player.x = Math.max(0, Math.min(GAME_WIDTH - PLAYER_SIZE, player.x));
+                if (player.y > GAME_HEIGHT) {
+                    player.y = 700;
+                    player.health -= 90;
+                    createParticles(player.x + PLAYER_SIZE / 2, 750, 25, player.color, 4, 3);
+                }
+
+                if (player.attackCooldown > 0) {
+                    player.attackCooldown--;
+                }
+            });
+
+            // Proyektillarni yangilash
+            projectiles = projectiles.map(projectile => {
+                // Trail qo'shish
+                projectile.trail.push({ x: projectile.x, y: projectile.y });
+                if (projectile.trail.length > 5) {
+                    projectile.trail.shift();
+                }
+
+                projectile.x += projectile.vx;
+                projectile.y += projectile.vy;
+
+                if (projectile.type === "rocket") {
+                    projectile.vy += 0.08;
+                    if (Math.random() > 0.3) {
+                        createParticles(projectile.x, projectile.y, 1, "#ff8c00", 3, 0.8);
+                    }
+                }
+
+                const collision = checkPlatformCollision(projectile.x, projectile.y, projectile.size, projectile.size);
+                if (collision) {
+                    if (projectile.type === "rocket") {
+                        playSound(880, 0.5, 'hit');
+                        const explosionRadius = 60 + projectile.power * 40;
+                        createParticles(projectile.x, projectile.y, 60, "#ff4500", 6, 5);
+
+                        players.forEach(player => {
+                            const distance = Math.sqrt(
+                                Math.pow(player.x + PLAYER_SIZE / 2 - projectile.x, 2) +
+                                Math.pow(player.y + PLAYER_SIZE / 2 - projectile.y, 2)
+                            );
+                            if (distance < explosionRadius && player.id !== projectile.owner) {
+                                const damage = Math.max(60, 180 - distance + projectile.power * 90);
+                                player.health = Math.max(0, player.health - damage);
+                            }
+                        });
+                    } else {
+                        createParticles(projectile.x, projectile.y, 8, "#a0aec0", 2, 2);
+                    }
+                    return null;
+                }
+
+                if (projectile.x < 0 || projectile.x > GAME_WIDTH || projectile.y < 0 || projectile.y > GAME_HEIGHT) {
+                    return null;
+                }
+
+                players.forEach(player => {
+                    if (projectile.owner !== player.id &&
+                        projectile.x > player.x &&
+                        projectile.x < player.x + PLAYER_SIZE &&
+                        projectile.y > player.y &&
+                        projectile.y < player.y + PLAYER_SIZE) {
+                        
+                        const damage = projectile.type === "pistol" ? 75 : 150 + projectile.power * 60;
+                        player.health = Math.max(0, player.health - damage);
+                        playSound(880, 0.2, 'hit');
+
+                        createParticles(projectile.x, projectile.y,
+                                      projectile.type === "pistol" ? 15 : 30,
+                                      "#ff4500",
+                                      projectile.type === "pistol" ? 3 : 5,
+                                      projectile.type === "pistol" ? 2 : 4);
+
+                        return null;
+                    }
+                });
+
+                return projectile;
+            }).filter(Boolean);
+
+            // O'yin tugashini tekshirish
+            const deadPlayer = players.find(p => p.health <= 0);
+            if (deadPlayer) {
+                gameOver = true;
+                winner = deadPlayer.id === 1 ? 2 : 1;
+                score[`player${winner}`]++;
+                playSound(660, 1, 'victory');
+                
+                createParticles(deadPlayer.x + PLAYER_SIZE / 2, deadPlayer.y + PLAYER_SIZE / 2,
+                              80, players.find(p => p.id === winner).color, 6, 5);
+                
+                updateScoreDisplay();
+                saveGameData();
+                showGameOver();
+            }
+
+            updateHealthBars();
+        }
+
+        // Chizish funksiyasi
+        function drawGame() {
+            if (!ctx) return;
+
+            // Fon
+            const gradient = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+            gradient.addColorStop(0, '#0f0f23');
+            gradient.addColorStop(0.5, '#1a1a2e');
+            gradient.addColorStop(1, '#16213e');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+            // Yulduzlar
+            ctx.fillStyle = 'white';
+            const time = Date.now() * 0.001;
+            for (let i = 0; i < 150; i++) {
+                const x = (i * 137) % GAME_WIDTH;
+                const y = (i * 211) % GAME_HEIGHT;
+                const size = Math.sin(time + i) * 0.5 + 1.5;
+                ctx.globalAlpha = Math.sin(time * 2 + i) * 0.3 + 0.7;
+                ctx.fillRect(x, y, size, size);
+            }
+            ctx.globalAlpha = 1;
+
+            // Zarralar
+            particles.forEach(particle => {
+                ctx.fillStyle = particle.color;
+                ctx.globalAlpha = particle.life / particle.maxLife;
+                ctx.fillRect(particle.x, particle.y, particle.size, particle.size);
+            });
+            ctx.globalAlpha = 1;
+
+            // Platformalar
+            platforms.forEach((platform, index) => {
+                if (index === 0) {
+                    const platformGradient = ctx.createLinearGradient(0, platform.y, 0, platform.y + platform.height);
+                    platformGradient.addColorStop(0, '#4a5568');
+                    platformGradient.addColorStop(1, '#2d3748');
+                    ctx.fillStyle = platformGradient;
+                } else {
+                    const platformGradient = ctx.createLinearGradient(0, platform.y, 0, platform.y + platform.height);
+                    platformGradient.addColorStop(0, '#2d3748');
+                    platformGradient.addColorStop(1, '#1a202c');
+                    ctx.fillStyle = platformGradient;
+                }
+                
+                ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(platform.x, platform.y, platform.width, platform.height);
+            });
+
+            // O'yinchilar
+            players.forEach(player => {
+                // Soya
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(player.x + 5, player.y + PLAYER_SIZE + 2, PLAYER_SIZE - 5, 8);
+
+                // Asosiy tana
+                const playerGradient = ctx.createLinearGradient(player.x, player.y, player.x, player.y + PLAYER_SIZE);
+                playerGradient.addColorStop(0, player.color);
+                playerGradient.addColorStop(1, player.secondaryColor);
+                ctx.fillStyle = playerGradient;
+                ctx.fillRect(player.x, player.y, PLAYER_SIZE, PLAYER_SIZE);
+                
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(player.x, player.y, PLAYER_SIZE, PLAYER_SIZE);
+
+                // Bosh
+                ctx.fillStyle = '#fbb6ce';
+                ctx.fillRect(player.x + 7, player.y + 5, 31, 31);
+                ctx.strokeRect(player.x + 7, player.y + 5, 31, 31);
+
+                // Ko'zlar
+                ctx.fillStyle = '#000';
+                ctx.fillRect(player.facingRight ? player.x + 15 : player.x + 24, player.y + 14, 7, 7);
+                ctx.fillRect(player.facingRight ? player.x + 26 : player.x + 13, player.y + 14, 7, 7);
+
+                // Og'iz
+                ctx.fillStyle = '#ff6b6b';
+                ctx.fillRect(player.x + 20, player.y + 24, 10, 4);
+
+                // Qurol
+                if (player.currentWeapon === "pistol") {
+                    ctx.fillStyle = '#4a5568';
+                    ctx.fillRect(player.facingRight ? player.x + 40 : player.x - 18, player.y + 17, 18, 7);
+                    ctx.strokeStyle = '#000';
+                    ctx.strokeRect(player.facingRight ? player.x + 40 : player.x - 18, player.y + 17, 18, 7);
+                } else {
+                    ctx.fillStyle = '#2d3748';
+                    ctx.fillRect(player.facingRight ? player.x + 40 : player.x - 30, player.y + 14, 30, 12);
+                    ctx.fillStyle = '#e53e3e';
+                    ctx.fillRect(player.facingRight ? player.x + 45 : player.x - 25, player.y + 12, 6, 16);
+                    ctx.strokeStyle = '#000';
+                    ctx.strokeRect(player.facingRight ? player.x + 40 : player.x - 30, player.y + 14, 30, 12);
+                }
+
+                // Jon ko'rsatkichi
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 3;
+                ctx.strokeText(player.health, player.x + PLAYER_SIZE / 2, player.y - 5);
+                ctx.fillText(player.health, player.x + PLAYER_SIZE / 2, player.y - 5);
+
+                // Qurol ko'rsatkichi
+                ctx.font = 'bold 18px Arial';
+                ctx.fillStyle = player.currentWeapon === "pistol" ? '#90cdf4' : '#f6ad55';
+                const weaponText = player.currentWeapon === "pistol" ? '🔫' : `🚀${player.rocketAmmo}`;
+                ctx.strokeText(weaponText, player.x + PLAYER_SIZE / 2, player.y - 25);
+                ctx.fillText(weaponText, player.x + PLAYER_SIZE / 2, player.y - 25);
+
+                // Zaryadlash ko'rsatkichi
+                if (player.isCharging) {
+                    const chargeWidth = PLAYER_SIZE * (player.chargeTime / MAX_CHARGE);
+                    
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                    ctx.fillRect(player.x, player.y - 35, PLAYER_SIZE, 8);
+                    
+                    const chargeGradient = ctx.createLinearGradient(player.x, 0, player.x + PLAYER_SIZE, 0);
+                    chargeGradient.addColorStop(0, '#ffd700');
+                    chargeGradient.addColorStop(1, '#ff6b6b');
+                    ctx.fillStyle = chargeGradient;
+                    ctx.fillRect(player.x, player.y - 35, chargeWidth, 8);
+                    
+                    ctx.font = 'bold 12px Arial';
+                    ctx.fillStyle = '#ffd700';
+                    ctx.strokeText(translations[currentLanguage].charging, player.x + PLAYER_SIZE / 2, player.y - 40);
+                    ctx.fillText(translations[currentLanguage].charging, player.x + PLAYER_SIZE / 2, player.y - 40);
+                }
+            });
+
+            // Proyektillar
+            projectiles.forEach(projectile => {
+                // Trail
+                if (projectile.trail && projectile.trail.length > 1) {
+                    ctx.strokeStyle = projectile.color;
+                    ctx.lineWidth = 2;
+                    ctx.globalAlpha = 0.5;
+                    ctx.beginPath();
+                    ctx.moveTo(projectile.trail[0].x, projectile.trail[0].y);
+                    for (let i = 1; i < projectile.trail.length; i++) {
+                        ctx.lineTo(projectile.trail[i].x, projectile.trail[i].y);
+                    }
+                    ctx.stroke();
+                    ctx.globalAlpha = 1;
+                }
+
+                if (projectile.type === "pistol") {
+                    ctx.fillStyle = projectile.color;
+                    ctx.fillRect(projectile.x, projectile.y, projectile.size, projectile.size);
+                    ctx.strokeStyle = '#000';
+                    ctx.strokeRect(projectile.x, projectile.y, projectile.size, projectile.size);
+                } else {
+                    ctx.fillStyle = '#ff6b6b';
+                    ctx.fillRect(projectile.x - projectile.size / 2, projectile.y - projectile.size / 2, 
+                               projectile.size, projectile.size * 1.8);
+                    
+                    ctx.fillStyle = '#ff8c00';
+                    ctx.globalAlpha = 0.7;
+                    ctx.fillRect(projectile.x - projectile.size, projectile.y + projectile.size, 
+                               projectile.size * 2, projectile.size);
+                    ctx.globalAlpha = 1;
+                    
+                    ctx.strokeStyle = '#000';
+                    ctx.strokeRect(projectile.x - projectile.size / 2, projectile.y - projectile.size / 2, 
+                                 projectile.size, projectile.size * 1.8);
+                }
+            });
+        }
+
+        // Jon ko'rsatkichlarini yangilash
+        function updateHealthBars() {
+            const health1 = document.getElementById('health1');
+            const health2 = document.getElementById('health2');
+            
+            const health1Percent = (players[0].health / players[0].maxHealth) * 100;
+            const health2Percent = (players[1].health / players[1].maxHealth) * 100;
+            
+            health1.style.width = `${health1Percent}%`;
+            health2.style.width = `${health2Percent}%`;
+        }
+
+        // Reklama ko'rsatish
+        async function showAd() {
+            if (!sdkInitialized || !ysdk || !ysdk.adv) {
+                console.log('Reklama mavjud emas');
+                return;
+            }
+
+            try {
+                await ysdk.adv.showFullscreenAdv({
+                    callbacks: {
+                        onClose: function(wasShown) {
+                            console.log('Reklama yopildi:', wasShown);
+                            if (gameStarted && !gameOver && !gameLoop) {
+                                gameLoop = setInterval(() => {
+                                    updateGame();
+                                    drawGame();
+                                }, 1000 / 60);
+                            }
+                        },
+                        onError: function(error) {
+                            console.log('Reklama xatolik:', error);
+                        },
+                        onOpen: function() {
+                            console.log('Reklama ochildi');
+                            if (gameLoop) {
+                                clearInterval(gameLoop);
+                                gameLoop = null;
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.log('Reklama ko\'rsatishda xatolik:', error);
+            }
+        }
+
+        // Sahifa yuklanganda
+        window.addEventListener('load', function() {
+            initYandexSDK();
+        });
+
+        // Sahifa yopilganda ma'lumotlarni saqlash
+        window.addEventListener('beforeunload', function() {
+            if (sdkInitialized) {
+                saveGameData();
+            }
+        });
+
+        // Visibility API - sahifa ko'rinmas bo'lganda
+        document.addEventListener('visibilitychange', async function() {
+            if (document.hidden) {
+                if (gameStarted && !gameOver && gameLoop) {
+                    clearInterval(gameLoop);
+                    gameLoop = null;
+                }
+                
+                if (sdkInitialized && ysdk && ysdk.features && ysdk.features.GameplayAPI && gameReady) {
+                    try {
+                        await ysdk.features.GameplayAPI.stop();
+                        console.log('Gameplay stopped (hidden)');
+                    } catch (error) {
+                        console.log('Gameplay stop error:', error);
+                    }
+                }
+                
+                if (sdkInitialized) {
+                    await saveGameData();
+                }
+            } else {
+                if (gameStarted && !gameOver && !gameLoop) {
+                    if (sdkInitialized && ysdk && ysdk.features && ysdk.features.GameplayAPI && gameReady) {
+                        try {
+                            await ysdk.features.GameplayAPI.start();
+                            console.log('Gameplay restarted (visible)');
+                        } catch (error) {
+                            console.log('Gameplay start error:', error);
+                        }
+                    }
+                    
+                    gameLoop = setInterval(() => {
+                        updateGame();
+                        drawGame();
+                    }, 1000 / 60);
+                }
+            }
+        });
+
+        // Har 10 ta o'yindan keyin reklama
+        let gameCount = 0;
+        const originalShowGameOver = showGameOver;
+        showGameOver = async function() {
+            await originalShowGameOver();
+            gameCount++;
+            if (gameCount % 10 === 0) {
+                setTimeout(() => {
+                    showAd();
+                }, 2000);
+            }
+        };
+
+        // Error handling
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
+        });
+
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Unhandled promise rejection:', e.reason);
+        });
+    </script>
+</body>
+</html>
